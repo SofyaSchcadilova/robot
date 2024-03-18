@@ -2,17 +2,9 @@ package org.example.gui;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 
-import javax.swing.JDesktopPane;
-import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.*;
 
 import org.example.log.Logger;
 
@@ -45,10 +37,21 @@ public class MainApplicationFrame extends JFrame
         gameWindow.setSize(400,  400);
         addWindow(gameWindow);
 
-        setJMenuBar(generateMenuBar());
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setJMenuBar(createJMenuBar());
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter(){
+            public void windowClosing(WindowEvent event){
+                Object[] options = {"Да", "Нет!"};
+                int n = JOptionPane.showOptionDialog(event.getWindow(), "Закрыть окно?",
+                                "Подтверждение", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                                null, options, options[0]);
+                if (n == 0) {
+                    setDefaultCloseOperation(EXIT_ON_CLOSE);
+                }
+            }
+        });
     }
-    
+
     protected LogWindow createLogWindow()
     {
         LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
@@ -65,81 +68,96 @@ public class MainApplicationFrame extends JFrame
         desktopPane.add(frame);
         frame.setVisible(true);
     }
-    
-//    protected JMenuBar createMenuBar() {
-//        JMenuBar menuBar = new JMenuBar();
-// 
-//        //Set up the lone menu.
-//        JMenu menu = new JMenu("Document");
-//        menu.setMnemonic(KeyEvent.VK_D);
-//        menuBar.add(menu);
-// 
-//        //Set up the first menu item.
-//        JMenuItem menuItem = new JMenuItem("New");
-//        menuItem.setMnemonic(KeyEvent.VK_N);
-//        menuItem.setAccelerator(KeyStroke.getKeyStroke(
-//                KeyEvent.VK_N, ActionEvent.ALT_MASK));
-//        menuItem.setActionCommand("new");
-////        menuItem.addActionListener(this);
-//        menu.add(menuItem);
-// 
-//        //Set up the second menu item.
-//        menuItem = new JMenuItem("Quit");
-//        menuItem.setMnemonic(KeyEvent.VK_Q);
-//        menuItem.setAccelerator(KeyStroke.getKeyStroke(
-//                KeyEvent.VK_Q, ActionEvent.ALT_MASK));
-//        menuItem.setActionCommand("quit");
-////        menuItem.addActionListener(this);
-//        menu.add(menuItem);
-// 
-//        return menuBar;
-//    }
-    
-    private JMenuBar generateMenuBar()
-    {
+
+    public JMenuBar createJMenuBar(){
         JMenuBar menuBar = new JMenuBar();
-        
-        JMenu lookAndFeelMenu = new JMenu("Режим отображения");
-        lookAndFeelMenu.setMnemonic(KeyEvent.VK_V);
-        lookAndFeelMenu.getAccessibleContext().setAccessibleDescription(
+
+        JMenu DocMenu = this.createJMenu("Document", KeyEvent.VK_D, "Document");
+        //DocMenu.add(createDocMenuItem("New", KeyEvent.VK_N, "new"));
+        //DocMenu.add(createDocMenuItem("Quit", KeyEvent.VK_Q, "quit"));
+        DocMenu.add(createDocMenuItem("Выход", KeyEvent.VK_X, "выход", WindowEvent.WINDOW_CLOSING));
+
+        JMenu lookAndFeelMenu = this.createJMenu("Режим отображения", KeyEvent.VK_V,
                 "Управление режимом отображения приложения");
-        
-        {
-            JMenuItem systemLookAndFeel = new JMenuItem("Системная схема", KeyEvent.VK_S);
-            systemLookAndFeel.addActionListener((event) -> {
-                setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                this.invalidate();
-            });
-            lookAndFeelMenu.add(systemLookAndFeel);
-        }
+        lookAndFeelMenu.add(createLookAndFeelItem("Системная схема", KeyEvent.VK_S,
+                UIManager.getSystemLookAndFeelClassName()));
+        lookAndFeelMenu.add(createLookAndFeelItem("Универсальная схема", KeyEvent.VK_S,
+                UIManager.getCrossPlatformLookAndFeelClassName()));
 
-        {
-            JMenuItem crossplatformLookAndFeel = new JMenuItem("Универсальная схема", KeyEvent.VK_S);
-            crossplatformLookAndFeel.addActionListener((event) -> {
-                setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-                this.invalidate();
-            });
-            lookAndFeelMenu.add(crossplatformLookAndFeel);
-        }
+        JMenu testMenu = this.createJMenu("Тесты", KeyEvent.VK_T, "Тестовые команды");
+        testMenu.add(createTestItem("Сообщение в лог", KeyEvent.VK_T, "Тестовые команды"));
 
-        JMenu testMenu = new JMenu("Тесты");
-        testMenu.setMnemonic(KeyEvent.VK_T);
-        testMenu.getAccessibleContext().setAccessibleDescription(
-                "Тестовые команды");
-        
-        {
-            JMenuItem addLogMessageItem = new JMenuItem("Сообщение в лог", KeyEvent.VK_S);
-            addLogMessageItem.addActionListener((event) -> {
-                Logger.debug("Новая строка");
-            });
-            testMenu.add(addLogMessageItem);
-        }
-
+        menuBar.add(DocMenu);
         menuBar.add(lookAndFeelMenu);
         menuBar.add(testMenu);
+
         return menuBar;
     }
-    
+
+    /**
+     * создает объект JMenu
+     * @param menuName
+     * @param mnemonic
+     * @param accessibleDescription
+     * @return JMenu menu
+     */
+    public JMenu createJMenu(String menuName, int mnemonic, String accessibleDescription){
+        JMenu menu = new JMenu(menuName);
+        menu.setMnemonic(mnemonic);
+        menu.getAccessibleContext().setAccessibleDescription(accessibleDescription);
+        return menu;
+    }
+
+    /**
+     * создает элемент меню Document
+     * @param label
+     * @param mnemonic
+     * @param actionCommand
+     * @return JMenuItem menuItem
+     */
+    private JMenuItem createDocMenuItem(String label, int mnemonic, String actionCommand, int windowEvent){
+        JMenuItem menuItem = new JMenuItem(label);
+        menuItem.setMnemonic(mnemonic);
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(mnemonic, ActionEvent.ALT_MASK));
+        menuItem.setActionCommand(actionCommand);
+        menuItem.addActionListener((event) -> {
+            Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(
+                    new WindowEvent(this, windowEvent));
+        });
+        return menuItem;
+    }
+
+    /**
+     * создает элемент меню "Режим отображения"
+     * @param label
+     * @param mnemonic
+     * @param className
+     * @return JMenuItem menuItem
+     */
+    private JMenuItem createLookAndFeelItem(String label, int mnemonic, String className){
+        JMenuItem menuItem = new JMenuItem(label, mnemonic);
+        menuItem.addActionListener((event) -> {
+            setLookAndFeel(className);
+            this.invalidate();
+        });
+        return menuItem;
+    }
+
+    /**
+     * создает элемент меню "Тестовые команды"
+     * @param label
+     * @param mnemonic
+     * @param message
+     * @return JMenuItem menuIte
+     */
+    private JMenuItem createTestItem(String label, int mnemonic, String message){
+        JMenuItem menuItem = new JMenuItem(label, mnemonic);
+        menuItem.addActionListener((event) -> {
+            Logger.debug(message);
+        });
+        return menuItem;
+    }
+
     private void setLookAndFeel(String className)
     {
         try
@@ -148,7 +166,7 @@ public class MainApplicationFrame extends JFrame
             SwingUtilities.updateComponentTreeUI(this);
         }
         catch (ClassNotFoundException | InstantiationException
-            | IllegalAccessException | UnsupportedLookAndFeelException e)
+               | IllegalAccessException | UnsupportedLookAndFeelException e)
         {
             // just ignore
         }
