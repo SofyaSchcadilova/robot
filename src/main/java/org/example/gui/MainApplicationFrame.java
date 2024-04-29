@@ -6,9 +6,6 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import org.example.gameModel.GameController;
-import org.example.gameModel.GameModel;
-import org.example.gameModel.GameVisualizer;
 import org.example.log.Logger;
 
 /**
@@ -36,17 +33,7 @@ public class MainApplicationFrame extends JFrame
         LogWindow logWindow = createLogWindow();
         addWindow(logWindow);
 
-        GameModel gameModel = new GameModel();
-        GameController gameController = new GameController(gameModel);
-        GameVisualizer gameVisualizer = new GameVisualizer(gameController);
-        gameModel.addListener(gameVisualizer);
-
-        CoordinateWindow coordinateWindow = new CoordinateWindow();
-        gameModel.addListener(coordinateWindow);
-        coordinateWindow.setSize(400, 400);
-        addWindow(coordinateWindow);
-
-        GameWindow gameWindow = new GameWindow(gameVisualizer);
+        GameWindow gameWindow = new GameWindow();
         gameWindow.setSize(400,  400);
         addWindow(gameWindow);
 
