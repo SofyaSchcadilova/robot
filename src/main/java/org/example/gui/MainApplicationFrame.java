@@ -1,12 +1,16 @@
 package org.example.gui;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyVetoException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.*;
 
 import org.example.log.Logger;
+import org.example.save.StateConroller;
 
 /**
  * Что требуется сделать:
@@ -18,15 +22,11 @@ public class MainApplicationFrame extends JFrame
 {
     private final JDesktopPane desktopPane = new JDesktopPane();
     
-    public MainApplicationFrame() {
+    public MainApplicationFrame() throws PropertyVetoException {
         //Make the big window be indented 50 pixels from each edge
         //of the screen.
-        int inset = 50;        
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds(inset, inset,
-            screenSize.width  - inset*2,
-            screenSize.height - inset*2);
-
+        setLocation(50, 50);
+        setExtendedState(MAXIMIZED_BOTH);
         setContentPane(desktopPane);
         
         
@@ -34,8 +34,10 @@ public class MainApplicationFrame extends JFrame
         addWindow(logWindow);
 
         GameWindow gameWindow = new GameWindow();
-        gameWindow.setSize(400,  400);
         addWindow(gameWindow);
+
+        List<Container> frames = new ArrayList<>(Arrays.asList(desktopPane.getAllFrames()));
+        StateConroller.recoverState(frames);
 
         setJMenuBar(createJMenuBar());
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -46,6 +48,8 @@ public class MainApplicationFrame extends JFrame
                                 "Подтверждение", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
                                 null, options, options[0]);
                 if (n == 0) {
+                    List<Container> frames = new ArrayList<>(Arrays.asList(desktopPane.getAllFrames()));
+                    StateConroller.saveState(frames);
                     setDefaultCloseOperation(EXIT_ON_CLOSE);
                 }
             }

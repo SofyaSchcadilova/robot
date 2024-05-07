@@ -10,8 +10,9 @@ import javax.swing.JPanel;
 import org.example.log.LogChangeListener;
 import org.example.log.LogEntry;
 import org.example.log.LogWindowSource;
+import org.example.save.Savable;
 
-public class LogWindow extends JInternalFrame implements LogChangeListener
+public class LogWindow extends JInternalFrame implements LogChangeListener, Savable
 {
     private LogWindowSource m_logSource;
     private TextArea m_logContent;
@@ -46,5 +47,10 @@ public class LogWindow extends JInternalFrame implements LogChangeListener
     public void onLogChanged()
     {
         EventQueue.invokeLater(this::updateLogContent);
+    }
+
+    @Override
+    public String getPrefix() {
+        return "log";
     }
 }
