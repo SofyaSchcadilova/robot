@@ -37,7 +37,7 @@ public class StateConroller {
      * @throws PropertyVetoException
      */
     private static void setState(Container window, SubMap subMap, String prefix) throws PropertyVetoException {
-        window.setSize(Integer.parseInt(subMap.get(prefix + ".Height")), Integer.parseInt(subMap.get(prefix + ".Width")));
+        window.setSize(Integer.parseInt(subMap.get(prefix + ".Width")), Integer.parseInt(subMap.get(prefix + ".Height")));
         window.setLocation(Integer.parseInt(subMap.get(prefix + ".X")), Integer.parseInt(subMap.get(prefix + ".Y")));
         if (window instanceof JInternalFrame jInternalFrame) {
             jInternalFrame.setIcon(Boolean.parseBoolean(subMap.get(prefix + ".isIcon")));
@@ -72,7 +72,7 @@ public class StateConroller {
                 }
             }
         } catch (Exception e){
-            System.out.println("Не удалось установить состояние окна");
+            System.out.println("Не удалось установить состояние окон");
         }
     }
 }

@@ -28,7 +28,6 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Sava
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(m_logContent, BorderLayout.CENTER);
         getContentPane().add(panel);
-        pack();
         updateLogContent();
     }
 
