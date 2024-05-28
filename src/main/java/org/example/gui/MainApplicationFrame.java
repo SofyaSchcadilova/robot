@@ -10,6 +10,8 @@ import java.util.List;
 import javax.swing.*;
 
 import org.example.log.Logger;
+import org.example.model.GameVisualizer;
+import org.example.model.RobotModel;
 import org.example.save.StateConroller;
 
 /**
@@ -27,17 +29,16 @@ public class MainApplicationFrame extends JFrame
         //of the screen.
         setLocation(50, 50);
         setExtendedState(MAXIMIZED_BOTH);
-        setContentPane(desktopPane);
-        
-        
-        LogWindow logWindow = createLogWindow();
-        addWindow(logWindow);
+        RobotModel model = new RobotModel();
 
-        GameWindow gameWindow = new GameWindow();
-        addWindow(gameWindow);
+        addWindow(new LogWindow());
+        addWindow(new GameWindow(new GameVisualizer(model)));
+        addWindow(new CoordinateWindow(model));
 
         List<Container> frames = new ArrayList<>(Arrays.asList(desktopPane.getAllFrames()));
+        frames.add(this);
         StateConroller.recoverState(frames);
+        setContentPane(desktopPane);
 
         setJMenuBar(createJMenuBar());
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -56,16 +57,6 @@ public class MainApplicationFrame extends JFrame
         });
     }
 
-    protected LogWindow createLogWindow()
-    {
-        LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
-        logWindow.setLocation(10,10);
-        logWindow.setSize(300, 800);
-        setMinimumSize(logWindow.getSize());
-        logWindow.pack();
-        Logger.debug("Протокол работает");
-        return logWindow;
-    }
     
     protected void addWindow(JInternalFrame frame)
     {

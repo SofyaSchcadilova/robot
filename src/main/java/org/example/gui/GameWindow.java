@@ -1,5 +1,6 @@
 package org.example.gui;
 
+import org.example.model.GameVisualizer;
 import org.example.save.Savable;
 
 import java.awt.*;
@@ -9,15 +10,13 @@ import javax.swing.JPanel;
 
 public class GameWindow extends JInternalFrame implements Savable
 {
-    private final GameVisualizer m_visualizer;
-    public GameWindow() 
+    public GameWindow(GameVisualizer gameVisualizer)
     {
         super("Игровое поле", true, true, true, true);
         setSize(300, 300);
         setLocation(250, 10);
-        m_visualizer = new GameVisualizer();
         JPanel panel = new JPanel(new BorderLayout());
-        panel.add(m_visualizer, BorderLayout.CENTER);
+        panel.add(gameVisualizer, BorderLayout.CENTER);
         getContentPane().add(panel);
     }
 
