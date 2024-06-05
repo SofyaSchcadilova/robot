@@ -16,14 +16,14 @@ public class LogWindowSource
 {
     private int m_iQueueLength;
     
-    private BoundedLog<LogEntry> m_messages;
+    private ProtocolStorage<LogEntry> m_messages;
     private final ArrayList<LogChangeListener> m_listeners;
     private volatile LogChangeListener[] m_activeListeners;
     
     public LogWindowSource(int iQueueLength) 
     {
         m_iQueueLength = iQueueLength;
-        m_messages = new BoundedLog<>(iQueueLength);
+        m_messages = new ProtocolStorage<>(iQueueLength);
         m_listeners = new ArrayList<LogChangeListener>();
     }
     
@@ -47,8 +47,29 @@ public class LogWindowSource
     
     public void append(LogLevel logLevel, String strMessage)
     {
+        strMessage = strMessage + Math.random();
         LogEntry entry = new LogEntry(logLevel, strMessage);
-        m_messages.add(entry);
+        m_messages.addRecord(entry);
+        LogChangeListener [] activeListeners = m_activeListeners;
+        if (activeListeners == null)
+        {
+            synchronized (m_listeners)
+            {
+                if (m_activeListeners == null)
+                {
+                    activeListeners = m_listeners.toArray(new LogChangeListener [0]);
+                    m_activeListeners = activeListeners;
+                }
+            }
+        }
+        for (LogChangeListener listener : activeListeners)
+        {
+            listener.onLogChanged();
+        }
+    }
+
+    public void removeRecord() {
+        m_messages.removeRecord();
         LogChangeListener [] activeListeners = m_activeListeners;
         if (activeListeners == null)
         {
@@ -79,7 +100,7 @@ public class LogWindowSource
             return Collections.emptyList();
         }
         int indexTo = Math.min(startFrom + count, m_messages.size());
-        return m_messages.getSegment(startFrom, indexTo);
+        return m_messages.getRecords(startFrom, indexTo);
     }
 
     public Iterable<LogEntry> all()

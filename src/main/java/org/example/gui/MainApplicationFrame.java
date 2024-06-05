@@ -81,6 +81,7 @@ public class MainApplicationFrame extends JFrame
 
         JMenu testMenu = this.createJMenu("Тесты", KeyEvent.VK_T, "Тестовые команды");
         testMenu.add(createTestItem("Сообщение в лог", KeyEvent.VK_T, "Тестовые команды"));
+        testMenu.add(deleteTestItem("Удаление сообщения", KeyEvent.VK_T));
 
         menuBar.add(DocMenu);
         menuBar.add(lookAndFeelMenu);
@@ -149,6 +150,14 @@ public class MainApplicationFrame extends JFrame
         JMenuItem menuItem = new JMenuItem(label, mnemonic);
         menuItem.addActionListener((event) -> {
             Logger.debug(message);
+        });
+        return menuItem;
+    }
+
+    private JMenuItem deleteTestItem(String label, int mnemonic){
+        JMenuItem menuItem = new JMenuItem(label, mnemonic);
+        menuItem.addActionListener((event) -> {
+            Logger.deleteMessage();
         });
         return menuItem;
     }
